@@ -1,32 +1,27 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>かんたんログイン | Firebase × GitHub Pages</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>かんたんログイン</title>
   <style>
-    :root{
-      --bg:#0b1020; --card:#151a2d; --text:#e6e8f2; --muted:#aab1c7; --accent:#7dd3fc; --ok:#34d399; --bad:#ef4444;
-    }
-    *{box-sizing:border-box;}
-    body{margin:0; background:linear-gradient(180deg,#0b1020,#0f1632); color:var(--text);
-         font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
-         min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;}
-    .card{width:100%; max-width:420px; background:var(--card); border:1px solid rgba(255,255,255,.08);
-          border-radius:20px; padding:22px; box-shadow:0 10px 30px rgba(0,0,0,.35);}
-    h1{margin:0 0 6px; font-size:20px;}
-    p{margin:8px 0; color:var(--muted); font-size:14px;}
-    label{display:block; margin-top:12px; font-size:13px; color:#c6cce2;}
-    input{width:100%; margin-top:6px; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.1);
-          background:#0f1430; color:var(--text);}
-    .row{display:flex; gap:10px; margin-top:14px;}
-    button{flex:1; padding:12px; border:none; border-radius:12px; cursor:pointer; color:#0b1020; font-weight:700;}
-    .primary{background:var(--accent);}
-    .ok{background:var(--ok);}
-    .danger{background:var(--bad); color:#fff;}
-    .muted{background:#273053; color:#dbe2ff;}
-    .status{margin-top:14px; padding:10px 12px; border-radius:12px; background:#0f1430; font-size:13px;}
-    .footer{margin-top:12px; font-size:12px; color:#93a1c8;}
+    :root{ --bg:#0b1020; --card:#151a2d; --text:#e6e8f2; --muted:#aab1c7; --accent:#7dd3fc; --ok:#34d399; --bad:#ef4444; }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b1020,#0f1632);color:var(--text);
+         font-family:system-ui,-apple-system,Segoe UI,Roboto,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+         min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{width:100%;max-width:420px;background:var(--card);border-radius:20px;padding:22px;
+          border:1px solid rgba(255,255,255,.08);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    h1{margin:0 0 6px;font-size:20px}
+    p{margin:8px 0;color:var(--muted);font-size:14px}
+    label{display:block;margin-top:12px;font-size:13px;color:#c6cce2}
+    input{width:100%;margin-top:6px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.1);
+          background:#0f1430;color:var(--text)}
+    .row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    button{flex:1;padding:12px;border:none;border-radius:12px;cursor:pointer;color:#0b1020;font-weight:700}
+    .primary{background:var(--accent)} .ok{background:var(--ok)} .danger{background:var(--bad);color:#fff}
+    .status{margin-top:14px;padding:10px 12px;border-radius:12px;background:#0f1430;font-size:13px}
+    .footer{margin-top:12px;font-size:12px;color:#93a1c8}
   </style>
 </head>
 <body>
@@ -35,18 +30,14 @@
     <p>メールとパスワードで登録・ログインできるよ（中身は空でOK）。</p>
 
     <label>メールアドレス</label>
-    <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+    <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
 
     <label>パスワード</label>
-    <input id="password" type="password" placeholder="8文字以上がおすすめ" autocomplete="current-password">
+    <input id="password" type="password" placeholder="8文字以上がおすすめ" autocomplete="current-password" />
 
     <div class="row">
       <button class="primary" id="signupBtn">新規登録</button>
       <button class="ok" id="loginBtn">ログイン</button>
-    </div>
-
-    <div class="row">
-      <button class="muted" id="magicBtn">マジックリンク</button>
       <button class="danger" id="logoutBtn">ログアウト</button>
     </div>
 
@@ -54,12 +45,10 @@
     <div class="footer">Firebase Auth（GitHub Pages対応）</div>
   </div>
 
-  <!-- Firebase SDKs (Compat for simplicity on static hosting) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-
   <script>
-    // 先生の firebaseConfig をセット済み！
+    // 固定の Firebase 設定（先生のプロジェクト）
     const firebaseConfig = {
       apiKey: "AIzaSyCDWW0h9y7R9yUZ1avKbJY-5xR--vlshLs",
       authDomain: "project-7889282246917454283.firebaseapp.com",
@@ -69,8 +58,6 @@
       appId: "1:239216764798:web:da7a78c35f8686c94cb52f",
       measurementId: "G-BWHQFKFTGK"
     };
-
-    // 初期化
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
@@ -78,54 +65,53 @@
     const emailEl = $("email");
     const passEl = $("password");
     const statusEl = $("status");
+    const showStatus = (t)=> statusEl.textContent = "状態：" + t;
 
-    function showStatus(text){ statusEl.textContent = "状態：" + text; }
-
-    // 認証状態の監視
-    auth.onAuthStateChanged((user)=>{
-      if(user){ showStatus(`ログイン中（${user.email}）`); }
-      else{ showStatus("未ログイン"); }
+    // 状態表示
+    auth.onAuthStateChanged(function(user){
+      if(user){
+        showStatus("ログイン中: " + user.email);
+      }else{
+        showStatus("未ログイン");
+      }
     });
 
-    // 新規登録
-    $("signupBtn").onclick = async ()=>{
-      const email = emailEl.value.trim();
-      const pass = passEl.value;
-      try{ await auth.createUserWithEmailAndPassword(email, pass); alert("登録できたよ！"); }
-      catch(e){ alert("登録エラー: " + e.message); console.error(e); }
-    };
-
-    // ログイン
-    $("loginBtn").onclick = async ()=>{
-      const email = emailEl.value.trim();
-      const pass = passEl.value;
-      try{ await auth.signInWithEmailAndPassword(email, pass); alert("ログインできたよ！"); }
-      catch(e){ alert("ログインエラー: " + e.message); console.error(e); }
-    };
-
-    // ログアウト
-    $("logoutBtn").onclick = async ()=>{
-      try{ await auth.signOut(); alert("ログアウトしたよ！"); }
-      catch(e){ alert("ログアウトエラー: " + e.message); }
-    };
-
-    // メールリンク（マジックリンク）
-    $("magicBtn").onclick = async ()=>{
-      const email = emailEl.value.trim();
-      const actionCodeSettings = { url: window.location.href, handleCodeInApp: true };
-      try {
-        await auth.sendSignInLinkToEmail(email, actionCodeSettings);
-        window.localStorage.setItem('emailForSignIn', email);
-        alert("メールに魔法のリンクを送ったよ！");
-      } catch(e){ alert("送信エラー: " + e.message); }
-    };
-
-    if (auth.isSignInWithEmailLink(window.location.href)) {
-      let email = window.localStorage.getItem('emailForSignIn') || window.prompt('メールを入力してね');
-      auth.signInWithEmailLink(email, window.location.href)
-        .then(()=>{ window.localStorage.removeItem('emailForSignIn'); alert("ログインできたよ！"); })
-        .catch((e)=> alert("リンクエラー: " + e.message));
+    function goWelcome(){
+      window.location.href = "welcome.html";
     }
+
+    $("signupBtn").onclick = async function(){
+      const email = emailEl.value.trim();
+      const pass = passEl.value;
+      if(!email || !pass){ alert("メールとパスワードを入れてね！"); return; }
+      try{
+        await auth.createUserWithEmailAndPassword(email, pass);
+        goWelcome();
+      }catch(e){
+        alert("登録エラー: " + e.message);
+      }
+    };
+
+    $("loginBtn").onclick = async function(){
+      const email = emailEl.value.trim();
+      const pass = passEl.value;
+      if(!email || !pass){ alert("メールとパスワードを入れてね！"); return; }
+      try{
+        await auth.signInWithEmailAndPassword(email, pass);
+        goWelcome();
+      }catch(e){
+        alert("ログインエラー: " + e.message);
+      }
+    };
+
+    $("logoutBtn").onclick = async function(){
+      try{
+        await auth.signOut();
+        alert("ログアウトしたよ！");
+      }catch(e){
+        alert("ログアウトエラー: " + e.message);
+      }
+    };
   </script>
 </body>
 </html>
