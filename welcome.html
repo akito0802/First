@@ -1,188 +1,145 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ようこそ！！</title>
-  <style>
-    :root{ --blue:#ace4ff; --blueLight:#daedff; --pink:#ffc5e1; --pinkLight:#ffe1e7; --text:#23324a; --muted:#5b6b86; --card:#fffffffa; --border:#e6ecff; }
-    *{box-sizing:border-box}
-    body{
-      margin:0; color:var(--text);
-      background: radial-gradient(1100px 700px at 0% 0%, var(--blueLight), transparent),
-                  radial-gradient(900px 600px at 100% 0%, var(--pinkLight), transparent),
-                  radial-gradient(1000px 900px at 50% 100%, #ffffff, transparent);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
-      min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:28px;
-    }
-    .container{ width:100%; max-width:860px; display:grid; gap:16px; }
-    .card{ background:var(--card); border-radius:20px; padding:18px; border:1px solid var(--border); box-shadow:0 10px 30px rgba(255,197,225,.25); }
-    h1{ margin:0 0 6px; font-size:26px; } h2{ margin:0 0 8px; font-size:20px; }
-    p{ margin:6px 0; color:var(--muted) }
-    textarea,input{ width:100%; padding:12px 14px; border-radius:14px; border:1px solid var(--border); background:#fff; color:var(--text) }
-    .row{ display:flex; gap:10px; flex-wrap:wrap }
-    button{ padding:12px 16px; border:none; border-radius:14px; cursor:pointer; font-weight:700 }
-    .accent{ background:var(--pink) } .danger{ background:#ff8aa8; color:#fff } .mutedBtn{ background:var(--blue) }
-    .entry{ border:1px solid var(--border); border-radius:16px; padding:12px; margin-top:10px; background:#fff }
-    .meta{ font-size:12px; color:#7383a1; margin-bottom:6px } .empty{ color:#7383a1; font-style:italic }
-    img.diary{ max-width:100%; height:auto; border-radius:12px; border:1px solid var(--border); margin-top:6px; }
-    .badge{ display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; background:var(--blueLight); color:var(--text) }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="card">
-      <h1>ようこそ！！ 🎉 <span class="badge" id="syncBadge">同期状態: ？</span></h1>
-      <p id="hello">読み込み中…</p>
-      <div class="row" style="margin-top:8px">
-        <button class="mutedBtn" onclick="location.href='index.html'">トップへ</button>
-        <button class="danger" id="logoutBtn">ログアウト</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>📝 今日の日記を書く</h2>
-      <input id="title" type="text" placeholder="タイトル（なくてもOK）" />
-      <textarea id="content" rows="5" placeholder="ここに日記を書くよ"></textarea>
-      <div class="row" style="margin-top:8px">
-        <input id="image" type="file" accept="image/*" />
-      </div>
-      <div class="row" style="margin-top:8px">
-        <button class="accent" id="saveBtn">保存する</button>
-        <button class="mutedBtn" id="clearBtn">クリア</button>
-      </div>
-      <p id="saveStatus" class="empty"></p>
-    </div>
-
-    <div class="card">
-      <h2>📚 これまでの日記</h2>
-      <div id="list"></div>
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ようこそ！！</title>
+<style>
+:root{ --blue:#ace4ff; --blueLight:#daedff; --pink:#ffc5e1; --pinkLight:#ffe1e7; --text:#23324a; --muted:#5b6b86; --card:#fffffffa; --border:#e6ecff }
+*{box-sizing:border-box}
+body{margin:0;color:var(--text);background:radial-gradient(1100px 700px at 0% 0%, var(--blueLight), transparent),radial-gradient(900px 600px at 100% 0%, var(--pinkLight), transparent),radial-gradient(1000px 900px at 50% 100%, #ffffff, transparent);font-family:system-ui,-apple-system,Segoe UI,Roboto,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
+.container{width:100%;max-width:860px;display:grid;gap:16px}
+.card{background:var(--card);border-radius:20px;padding:18px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(255,197,225,.25)}
+h1{margin:0 0 6px;font-size:26px}h2{margin:0 0 8px;font-size:20px}p{margin:6px 0;color:var(--muted)}
+textarea,input{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:#fff;color:var(--text)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+button{padding:12px 16px;border:none;border-radius:14px;cursor:pointer;font-weight:700}
+.accent{background:var(--pink)} .danger{background:#ff8aa8;color:#fff} .mutedBtn{background:var(--blue)}
+.entry{border:1px solid var(--border);border-radius:16px;padding:12px;margin-top:10px;background:#fff}
+.meta{font-size:12px;color:#7383a1;margin-bottom:6px}.empty{color:#7383a1;font-style:italic}
+img.diary{max-width:100%;height:auto;border-radius:12px;border:1px solid var(--border);margin-top:6px}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:var(--blueLight);color:var(--text)}
+.progress{height:6px;width:100%;background:#f1f5ff;border-radius:999px;overflow:hidden;margin-top:8px}
+.progress>div{height:100%;width:0%;background:#85d2ff}
+</style></head><body>
+<div class="container">
+  <div class="card">
+    <h1>ようこそ！！ 🎉 <span class="badge" id="syncBadge">同期状態: ？</span></h1>
+    <p id="hello">読み込み中…</p>
+    <div class="row" style="margin-top:8px">
+      <button class="mutedBtn" onclick="location.href='index.html'">トップへ</button>
+      <button class="danger" id="logoutBtn">ログアウト</button>
     </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCDWW0h9y7R9yUZ1avKbJY-5xR--vlshLs",
-      authDomain: "project-7889282246917454283.firebaseapp.com",
-      projectId: "project-7889282246917454283",
-      storageBucket: "project-7889282246917454283.firebasestorage.app",
-      messagingSenderId: "239216764798",
-      appId: "1:239216764798:web:da7a78c35f8686c94cb52f",
-      measurementId: "G-BWHQFKFTGK"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+  <div class="card">
+    <h2>📝 今日の日記を書く</h2>
+    <input id="title" type="text" placeholder="タイトル（なくてもOK）"/>
+    <textarea id="content" rows="5" placeholder="ここに日記を書くよ"></textarea>
+    <div class="row" style="margin-top:8px"><input id="image" type="file" accept="image/*"/></div>
+    <div class="progress" id="prog" style="display:none"><div></div></div>
+    <div class="row" style="margin-top:8px">
+      <button class="accent" id="saveBtn">保存する</button>
+      <button class="mutedBtn" id="clearBtn">クリア</button>
+    </div>
+    <p id="saveStatus" class="empty"></p>
+  </div>
 
-    db.enablePersistence().catch(function(e){});
+  <div class="card">
+    <h2>📚 これまでの日記</h2>
+    <div id="list"></div>
+  </div>
+</div>
 
-    const hello = document.getElementById('hello');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const titleEl = document.getElementById('title');
-    const contentEl = document.getElementById('content');
-    const imageEl = document.getElementById('image');
-    const saveBtn = document.getElementById('saveBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const listEl = document.getElementById('list');
-    const saveStatus = document.getElementById('saveStatus');
-    const syncBadge = document.getElementById('syncBadge');
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script>
+const firebaseConfig={apiKey:"AIzaSyCDWW0h9y7R9yUZ1avKbJY-5xR--vlshLs",authDomain:"project-7889282246917454283.firebaseapp.com",projectId:"project-7889282246917454283",storageBucket:"project-7889282246917454283.firebasestorage.app",messagingSenderId:"239216764798",appId:"1:239216764798:web:da7a78c35f8686c94cb52f",measurementId:"G-BWHQFKFTGK"};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth(), db=firebase.firestore(), storage=firebase.storage();
+db.enablePersistence().catch(()=>{});
 
-    auth.onAuthStateChanged(function(user){
-      if(!user){ location.replace('index.html'); return; }
-      hello.textContent = user.email + " さん、ようこそ！！";
-      loadEntries(user.uid);
-    });
+const hello=document.getElementById('hello'), logoutBtn=document.getElementById('logoutBtn'),
+      titleEl=document.getElementById('title'), contentEl=document.getElementById('content'),
+      imageEl=document.getElementById('image'), saveBtn=document.getElementById('saveBtn'),
+      clearBtn=document.getElementById('clearBtn'), listEl=document.getElementById('list'),
+      saveStatus=document.getElementById('saveStatus'), syncBadge=document.getElementById('syncBadge'),
+      prog=document.getElementById('prog'), bar=prog.firstElementChild;
 
-    logoutBtn.onclick = async function(){ await auth.signOut(); location.replace('index.html'); };
+auth.onAuthStateChanged(u=>{ if(!u){ location.replace('index.html'); return; } hello.textContent=u.email+" さん、ようこそ！！"; loadEntries(u.uid); });
+logoutBtn.onclick=async()=>{ await auth.signOut(); location.replace('index.html'); };
 
-    // 保存：画像があればStorageへアップ→URLを記事に保存
-    saveBtn.onclick = async function(){
-      const user = auth.currentUser; if(!user) return;
-      const title = titleEl.value.trim();
-      const content = contentEl.value.trim();
-      const file = imageEl.files[0] || null;
-      if(!content && !file){ alert("本文か画像のどちらかは入れてね！"); return; }
-
-      try{
-        saveStatus.textContent = "アップロード中…";
-        let imageURL = null, imagePath = null;
-        if(file){
-          const safeName = file.name.replace(/[^a-zA-Z0-9_.-]/g,'_');
-          const path = `images/${user.uid}/${Date.now()}_${safeName}`;
-          const ref = storage.ref().child(path);
-          await ref.put(file);
-          imageURL = await ref.getDownloadURL();
-          imagePath = path;
-        }
-
-        const nowMs = Date.now();
-        await db.collection('diaries').doc(user.uid).collection('entries').add({
-          title: title || null,
-          content: content || null,
-          imageURL: imageURL,
-          imagePath: imagePath,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          createdAtMs: nowMs
-        });
-
-        titleEl.value = ""; contentEl.value = ""; imageEl.value = "";
-        saveStatus.textContent = "クラウド保存済み ✅";
-        setTimeout(()=> saveStatus.textContent = "", 1500);
-      }catch(e){
-        saveStatus.textContent = "";
-        alert("保存エラー: " + e.message);
-      }
-    };
-
-    clearBtn.onclick = function(){ titleEl.value = ""; contentEl.value = ""; imageEl.value = ""; };
-
-    function loadEntries(uid){
-      listEl.innerHTML = "<p class='empty'>読み込み中…</p>";
-      db.collection('diaries').doc(uid).collection('entries')
-        .orderBy('createdAtMs', 'desc')
-        .onSnapshot({ includeMetadataChanges: true }, function(snap){
-          if(snap.empty){ listEl.innerHTML = "<p class='empty'>まだ日記はないよ。上で書いて保存してね！</p>"; syncBadge.textContent = "同期状態: なし"; return; }
-          listEl.innerHTML = "";
-          snap.forEach(function(doc){
-            const d = doc.data();
-            const t = d.createdAt ? d.createdAt.toDate() : new Date(d.createdAtMs || Date.now());
-            const when = new Intl.DateTimeFormat('ja-JP', { dateStyle:'medium', timeStyle:'short' }).format(t);
-
-            const el = document.createElement('div');
-            el.className = "entry";
-            el.innerHTML = "<div class='meta'>" + when + (d.title ? " ｜ " + escapeHtml(d.title) : "") + "</div>" +
-                           (d.content ? "<div>" + escapeHtml(d.content).replace(/\n/g,'<br>') + "</div>" : "") +
-                           (d.imageURL ? `<img class="diary" src="${d.imageURL}" alt="添付画像">` : "") +
-                           "<div class='row' style='margin-top:8px'><button class='danger' data-id='"+doc.id+"'>削除</button></div>";
-
-            el.querySelector('button').onclick = async function(){
-              try{
-                // Storageの画像も消す
-                if(d.imagePath){ await storage.ref().child(d.imagePath).delete().catch(function(){}) }
-                await db.collection('diaries').doc(uid).collection('entries').doc(doc.id).delete();
-              }catch(e){ alert("削除エラー: " + e.message); }
-            };
-            listEl.appendChild(el);
-          });
-
-          const anyPending = snap.docs.some(d => d.metadata.hasPendingWrites);
-          const fromCache = snap.metadata.fromCache;
-          syncBadge.textContent = "同期状態: " + (anyPending ? "送信中…" : (fromCache ? "ローカル" : "クラウド保存済み✅"));
-        }, function(err){
-          listEl.innerHTML = "<p class='empty'>読み込みエラー: " + err.message + "</p>";
-        });
-    }
-
-    function escapeHtml(s){
-      return s.replace(/[&<>'"]/g, function(c){
-        return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];
+saveBtn.onclick=async()=>{
+  const u=auth.currentUser; if(!u) return;
+  const title=titleEl.value.trim(), content=contentEl.value.trim(), file=imageEl.files[0]||null;
+  if(!content && !file){ alert("本文か画像のどちらかは入れてね！"); return; }
+  try{
+    saveStatus.textContent="アップロード準備中…";
+    let imageURL=null, imagePath=null;
+    if(file){
+      const safeName=(file.name||'image').replace(/[^a-zA-Z0-9_.-]/g,'_');
+      const path=`images/${u.uid}/${Date.now()}_${safeName}`;
+      const ref=storage.ref().child(path);
+      const task=ref.put(file, {contentType:file.type||'image/*'});
+      prog.style.display='block';
+      task.on('state_changed', (snap)=>{
+        const pct = Math.round((snap.bytesTransferred/snap.totalBytes)*100);
+        bar.style.width=pct+'%';
+        saveStatus.textContent=`画像アップロード中… ${pct}%`;
+      }, (err)=>{
+        prog.style.display='none'; bar.style.width='0%';
+        console.error('upload error', err);
+        alert('画像アップロード失敗: '+err.code+' / '+err.message+'\n(例: Storageルール未設定・認可ドメイン違い・サイズ上限など)');
+      }, async()=>{
+        imageURL=await ref.getDownloadURL(); imagePath=path;
+        prog.style.display='none'; bar.style.width='0%';
+        await writeDoc(u, title, content, imageURL, imagePath);
       });
+    }else{
+      await writeDoc(u, title, content, null, null);
     }
-  </script>
-</body>
-</html>
+  }catch(e){
+    alert("保存エラー: "+e.message);
+  }
+};
+
+async function writeDoc(u, title, content, imageURL, imagePath){
+  saveStatus.textContent="クラウドへ保存中…";
+  await db.collection('diaries').doc(u.uid).collection('entries').add({
+    title: title||null, content: content||null, imageURL: imageURL||null, imagePath: imagePath||null,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(), createdAtMs: Date.now()
+  });
+  titleEl.value=""; contentEl.value=""; imageEl.value="";
+  saveStatus.textContent="クラウド保存済み ✅"; setTimeout(()=> saveStatus.textContent="", 1500);
+}
+
+clearBtn.onclick=()=>{ titleEl.value=""; contentEl.value=""; imageEl.value=""; };
+
+function loadEntries(uid){
+  listEl.innerHTML="<p class='empty'>読み込み中…</p>";
+  db.collection('diaries').doc(uid).collection('entries').orderBy('createdAtMs','desc')
+    .onSnapshot({includeMetadataChanges:true}, (snap)=>{
+      if(snap.empty){ listEl.innerHTML="<p class='empty'>まだ日記はないよ。上で書いて保存してね！</p>"; syncBadge.textContent="同期状態: なし"; return; }
+      listEl.innerHTML="";
+      snap.forEach((doc)=>{
+        const d=doc.data(); const t=d.createdAt?d.createdAt.toDate():new Date(d.createdAtMs||Date.now());
+        const when=new Intl.DateTimeFormat('ja-JP',{dateStyle:'medium',timeStyle:'short'}).format(t);
+        const el=document.createElement('div'); el.className="entry";
+        el.innerHTML="<div class='meta'>"+when+(d.title? " ｜ "+escapeHtml(d.title):"")+"</div>"+
+                     (d.content? "<div>"+escapeHtml(d.content).replace(/\n/g,'<br>')+"</div>":"")+
+                     (d.imageURL? `<img class="diary" src="${d.imageURL}" alt="添付画像">`:"")+
+                     "<div class='row' style='margin-top:8px'><button class='danger' data-id='"+doc.id+"'>削除</button></div>";
+        el.querySelector('button').onclick=async()=>{
+          try{ if(d.imagePath){ await storage.ref().child(d.imagePath).delete().catch(()=>{}); }
+               await db.collection('diaries').doc(uid).collection('entries').doc(doc.id).delete();
+          }catch(e){ alert("削除エラー: "+e.message); }
+        };
+        listEl.appendChild(el);
+      });
+      const anyPending=snap.docs.some(d=>d.metadata.hasPendingWrites);
+      const fromCache=snap.metadata.fromCache;
+      syncBadge.textContent="同期状態: "+(anyPending? "送信中…":(fromCache?"ローカル":"クラウド保存済み✅"));
+    }, (err)=>{ listEl.innerHTML="<p class='empty'>読み込みエラー: "+err.message+"</p>"; });
+}
+
+function escapeHtml(s){return s.replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+</script></body></html>
