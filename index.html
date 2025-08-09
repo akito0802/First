@@ -66,13 +66,10 @@
     const statusEl = $("status");
     const showStatus = (t)=> statusEl.textContent = "状態：" + t;
 
-    // すでにログインしてたら、ログイン画面をスキップして welcome.html へ
+    // 既にログインしてたら welcome.html へ（ログイン画面を見せない）
     auth.onAuthStateChanged(function(user){
-      if(user){
-        window.location.replace("welcome.html"); // ← 戻るボタンで戻れないようにreplace
-      }else{
-        showStatus("未ログイン");
-      }
+      if(user){ window.location.replace("welcome.html"); }
+      else{ showStatus("未ログイン"); }
     });
 
     function goWelcome(){ window.location.href = "welcome.html"; }

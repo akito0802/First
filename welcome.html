@@ -5,32 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ようこそ！！</title>
   <style>
-    :root{ --bg:#0b1020; --card:#151a2d; --text:#e6e8f2; --muted:#aab1c7; --accent:#7dd3fc; --bad:#ef4444; }
+    :root{ --bg:#0b1020; --card:#151a2d; --text:#e6e8f2; --muted:#aab1c7; --accent:#7dd3fc; --bad:#ef4444; --ok:#10b981; }
     *{box-sizing:border-box}
     body{margin:0;background:linear-gradient(180deg,#0b1020,#0f1632);color:var(--text);
          font-family:system-ui,-apple-system,Segoe UI,Roboto,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
          min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .card{width:100%;max-width:520px;background:var(--card);border-radius:20px;padding:28px;
-          border:1px solid rgba(255,255,255,.08);box-shadow:0 10px 30px rgba(0,0,0,.35);text-align:center}
-    h1{margin:0 0 8px;font-size:28px}
-    p{margin:8px 0;color:var(--muted);font-size:16px}
-    .row{display:flex;gap:10px;margin-top:18px;justify-content:center;flex-wrap:wrap}
+    .container{width:100%;max-width:680px;display:grid;gap:16px}
+    .card{background:var(--card);border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,.08);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    h1{margin:0 0 8px;font-size:26px}
+    p{margin:6px 0;color:var(--muted)}
+    textarea,input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#0f1430;color:var(--text)}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
     button{padding:12px 16px;border:none;border-radius:12px;cursor:pointer;color:#0b1020;font-weight:700}
-    .danger{background:#ef4444;color:#fff} .muted{background:#273053;color:#dbe2ff}
+    .accent{background:var(--accent)} .danger{background:#ef4444;color:#fff} .muted{background:#273053;color:#dbe2ff}
+    .entry{border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:12px;margin-top:10px;background:#0f1430}
+    .meta{font-size:12px;color:#aab1c7;margin-bottom:6px}
+    .empty{color:#aab1c7;font-style:italic}
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>ようこそ！！ 🎉</h1>
-    <p id="hello">読み込み中…</p>
-    <div class="row">
-      <button class="muted" onclick="location.href='index.html'">トップへ</button>
-      <button class="danger" id="logoutBtn">ログアウト</button>
+  <div class="container">
+    <div class="card" id="helloCard">
+      <h1>ようこそ！！ 🎉</h1>
+      <p id="hello">読み込み中…</p>
+      <div class="row" style="margin-top:8px">
+        <button class="muted" onclick="location.href='index.html'">トップへ</button>
+        <button class="danger" id="logoutBtn">ログアウト</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px">📝 今日の日記を書く</h2>
+      <input id="title" type="text" placeholder="タイトル（なくてもOK）" />
+      <textarea id="content" rows="5" placeholder="ここに日記を書くよ"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="accent" id="saveBtn">保存する</button>
+        <button class="muted" id="clearBtn">クリア</button>
+      </div>
+      <p id="saveStatus" class="empty"></p>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px">📚 これまでの日記</h2>
+      <div id="list"></div>
     </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCDWW0h9y7R9yUZ1avKbJY-5xR--vlshLs",
@@ -43,20 +66,102 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const hello = document.getElementById('hello');
+    const db = firebase.firestore();
 
+    const hello = document.getElementById('hello');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const titleEl = document.getElementById('title');
+    const contentEl = document.getElementById('content');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const listEl = document.getElementById('list');
+    const saveStatus = document.getElementById('saveStatus');
+
+    // 未ログインはトップに戻す。ログイン中は挨拶と日記一覧をロード
     auth.onAuthStateChanged(function(user){
-      if(!user){
-        location.replace('index.html'); // ← 未ログインなら戻す（戻るボタン無効）
-      }else{
-        hello.textContent = user.email + " さん、ようこそ！！";
-      }
+      if(!user){ location.replace('index.html'); return; }
+      hello.textContent = user.email + " さん、ようこそ！！";
+      loadEntries(user.uid);
     });
 
-    document.getElementById('logoutBtn').onclick = async function(){
+    logoutBtn.onclick = async function(){
       await auth.signOut();
       location.replace('index.html');
     };
+
+    // 保存
+    saveBtn.onclick = async function(){
+      const user = auth.currentUser;
+      if(!user){ return; }
+      const title = titleEl.value.trim();
+      const content = contentEl.value.trim();
+      if(!content){ alert("日記の本文を書いてね！"); return; }
+
+      try{
+        await db.collection('diaries').doc(user.uid).collection('entries').add({
+          title: title || null,
+          content: content,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        titleEl.value = "";
+        contentEl.value = "";
+        saveStatus.textContent = "保存したよ！";
+        setTimeout(()=> saveStatus.textContent = "", 1500);
+      }catch(e){
+        alert("保存エラー: " + e.message);
+      }
+    };
+
+    clearBtn.onclick = function(){
+      titleEl.value = "";
+      contentEl.value = "";
+    };
+
+    // 一覧（リアルタイム反映）
+    function loadEntries(uid){
+      listEl.innerHTML = "<p class='empty'>読み込み中…</p>";
+      db.collection('diaries').doc(uid).collection('entries')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(function(snap){
+          if(snap.empty){
+            listEl.innerHTML = "<p class='empty'>まだ日記はないよ。上で書いて保存してね！</p>";
+            return;
+          }
+          listEl.innerHTML = "";
+          snap.forEach(function(doc){
+            const d = doc.data();
+            const time = d.createdAt ? d.createdAt.toDate() : new Date();
+            const y = time.getFullYear();
+            const m = String(time.getMonth()+1).padStart(2,'0');
+            const da = String(time.getDate()).padStart(2,'0');
+            const hh = String(time.getHours()).padStart(2,'0');
+            const mm = String(time.getMinutes()).padStart(2,'0');
+            const when = y + "-" + m + "-" + da + " " + hh + ":" + mm;
+
+            const div = document.createElement('div');
+            div.className = 'entry';
+            div.innerHTML = "<div class='meta'>" + when + (d.title ? " ｜ " + d.title : "") + "</div>"
+                            + "<div>" + escapeHtml(d.content).replace(/\n/g,'<br>') + "</div>"
+                            + "<div class='row' style='margin-top:8px'><button class='danger' data-id='"+doc.id+"'>削除</button></div>";
+
+            div.querySelector('button').onclick = function(){
+              db.collection('diaries').doc(uid).collection('entries').doc(doc.id).delete().catch(function(e){
+                alert("削除エラー: " + e.message);
+              });
+            };
+
+            listEl.appendChild(div);
+          });
+        }, function(err){
+          listEl.innerHTML = "<p class='empty'>読み込みエラー: " + err.message + "</p>";
+        });
+    }
+
+    function escapeHtml(s){
+      return s.replace(/[&<>'"]/g, function(c){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]);
+      });
+    }
   </script>
 </body>
 </html>
