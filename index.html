@@ -66,7 +66,7 @@
     const statusEl = $("status");
     const showStatus = (t)=> statusEl.textContent = "状態：" + t;
 
-    // 既にログインしてたら welcome.html へ（ログイン画面を見せない）
+    // 既ログインなら welcome へ
     auth.onAuthStateChanged(function(user){
       if(user){ window.location.replace("welcome.html"); }
       else{ showStatus("未ログイン"); }

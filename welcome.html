@@ -68,6 +68,9 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    // オフラインでも見られるように試す（失敗しても無視）
+    db.enablePersistence().catch(function(e){});
+
     const hello = document.getElementById('hello');
     const logoutBtn = document.getElementById('logoutBtn');
     const titleEl = document.getElementById('title');
@@ -77,7 +80,6 @@
     const listEl = document.getElementById('list');
     const saveStatus = document.getElementById('saveStatus');
 
-    // 未ログインはトップに戻す。ログイン中は挨拶と日記一覧をロード
     auth.onAuthStateChanged(function(user){
       if(!user){ location.replace('index.html'); return; }
       hello.textContent = user.email + " さん、ようこそ！！";
@@ -89,7 +91,7 @@
       location.replace('index.html');
     };
 
-    // 保存
+    // 保存：createdAt（サーバー時刻）と createdAtMs（クライアント時刻）両方保存
     saveBtn.onclick = async function(){
       const user = auth.currentUser;
       if(!user){ return; }
@@ -98,10 +100,12 @@
       if(!content){ alert("日記の本文を書いてね！"); return; }
 
       try{
+        const nowMs = Date.now();
         await db.collection('diaries').doc(user.uid).collection('entries').add({
           title: title || null,
           content: content,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAtMs: nowMs
         });
         titleEl.value = "";
         contentEl.value = "";
@@ -112,16 +116,13 @@
       }
     };
 
-    clearBtn.onclick = function(){
-      titleEl.value = "";
-      contentEl.value = "";
-    };
+    clearBtn.onclick = function(){ titleEl.value = ""; contentEl.value = ""; };
 
-    // 一覧（リアルタイム反映）
+    // 表示は createdAtMs（数値）で安定ソート
     function loadEntries(uid){
       listEl.innerHTML = "<p class='empty'>読み込み中…</p>";
       db.collection('diaries').doc(uid).collection('entries')
-        .orderBy('createdAt', 'desc')
+        .orderBy('createdAtMs', 'desc')
         .onSnapshot(function(snap){
           if(snap.empty){
             listEl.innerHTML = "<p class='empty'>まだ日記はないよ。上で書いて保存してね！</p>";
@@ -130,19 +131,20 @@
           listEl.innerHTML = "";
           snap.forEach(function(doc){
             const d = doc.data();
-            const time = d.createdAt ? d.createdAt.toDate() : new Date();
-            const y = time.getFullYear();
-            const m = String(time.getMonth()+1).padStart(2,'0');
-            const da = String(time.getDate()).padStart(2,'0');
-            const hh = String(time.getHours()).padStart(2,'0');
-            const mm = String(time.getMinutes()).padStart(2,'0');
+            const t = d.createdAt ? d.createdAt.toDate() : new Date(d.createdAtMs || Date.now());
+            const y = t.getFullYear();
+            const m = String(t.getMonth()+1).padStart(2,'0');
+            const da = String(t.getDate()).padStart(2,'0');
+            const hh = String(t.getHours()).padStart(2,'0');
+            const mm = String(t.getMinutes()).padStart(2,'0');
             const when = y + "-" + m + "-" + da + " " + hh + ":" + mm;
 
             const div = document.createElement('div');
             div.className = 'entry';
-            div.innerHTML = "<div class='meta'>" + when + (d.title ? " ｜ " + d.title : "") + "</div>"
-                            + "<div>" + escapeHtml(d.content).replace(/\n/g,'<br>') + "</div>"
-                            + "<div class='row' style='margin-top:8px'><button class='danger' data-id='"+doc.id+"'>削除</button></div>";
+            div.innerHTML =
+              "<div class='meta'>" + when + (d.title ? " ｜ " + d.title : "") + "</div>" +
+              "<div>" + escapeHtml(d.content).replace(/\n/g,'<br>') + "</div>" +
+              "<div class='row' style='margin-top:8px'><button class='danger' data-id='"+doc.id+"'>削除</button></div>";
 
             div.querySelector('button').onclick = function(){
               db.collection('diaries').doc(uid).collection('entries').doc(doc.id).delete().catch(function(e){
@@ -159,7 +161,7 @@
 
     function escapeHtml(s){
       return s.replace(/[&<>'"]/g, function(c){
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]);
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','\'':'&#39;','"':'&quot;'}[c]);
       });
     }
   </script>
