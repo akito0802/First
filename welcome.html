@@ -47,7 +47,7 @@
 
     auth.onAuthStateChanged(function(user){
       if(!user){
-        location.href = 'index.html';
+        location.replace('index.html'); // ← 未ログインなら戻す（戻るボタン無効）
       }else{
         hello.textContent = user.email + " さん、ようこそ！！";
       }
@@ -55,7 +55,7 @@
 
     document.getElementById('logoutBtn').onclick = async function(){
       await auth.signOut();
-      location.href = 'index.html';
+      location.replace('index.html');
     };
   </script>
 </body>

@@ -48,7 +48,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script>
-    // 固定の Firebase 設定（先生のプロジェクト）
     const firebaseConfig = {
       apiKey: "AIzaSyCDWW0h9y7R9yUZ1avKbJY-5xR--vlshLs",
       authDomain: "project-7889282246917454283.firebaseapp.com",
@@ -67,50 +66,36 @@
     const statusEl = $("status");
     const showStatus = (t)=> statusEl.textContent = "状態：" + t;
 
-    // 状態表示
+    // すでにログインしてたら、ログイン画面をスキップして welcome.html へ
     auth.onAuthStateChanged(function(user){
       if(user){
-        showStatus("ログイン中: " + user.email);
+        window.location.replace("welcome.html"); // ← 戻るボタンで戻れないようにreplace
       }else{
         showStatus("未ログイン");
       }
     });
 
-    function goWelcome(){
-      window.location.href = "welcome.html";
-    }
+    function goWelcome(){ window.location.href = "welcome.html"; }
 
     $("signupBtn").onclick = async function(){
       const email = emailEl.value.trim();
       const pass = passEl.value;
       if(!email || !pass){ alert("メールとパスワードを入れてね！"); return; }
-      try{
-        await auth.createUserWithEmailAndPassword(email, pass);
-        goWelcome();
-      }catch(e){
-        alert("登録エラー: " + e.message);
-      }
+      try{ await auth.createUserWithEmailAndPassword(email, pass); goWelcome(); }
+      catch(e){ alert("登録エラー: " + e.message); }
     };
 
     $("loginBtn").onclick = async function(){
       const email = emailEl.value.trim();
       const pass = passEl.value;
       if(!email || !pass){ alert("メールとパスワードを入れてね！"); return; }
-      try{
-        await auth.signInWithEmailAndPassword(email, pass);
-        goWelcome();
-      }catch(e){
-        alert("ログインエラー: " + e.message);
-      }
+      try{ await auth.signInWithEmailAndPassword(email, pass); goWelcome(); }
+      catch(e){ alert("ログインエラー: " + e.message); }
     };
 
     $("logoutBtn").onclick = async function(){
-      try{
-        await auth.signOut();
-        alert("ログアウトしたよ！");
-      }catch(e){
-        alert("ログアウトエラー: " + e.message);
-      }
+      try{ await auth.signOut(); alert("ログアウトしたよ！"); }
+      catch(e){ alert("ログアウトエラー: " + e.message); }
     };
   </script>
 </body>
