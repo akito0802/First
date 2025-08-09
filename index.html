@@ -5,40 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>かんたんログイン</title>
   <style>
-    :root{
-      --blue: #ace4ff;
-      --blueLight: #daedff;
-      --pink: #ffc5e1;
-      --pinkLight: #ffe1e7;
-      --text: #23324a;
-      --muted: #5b6b86;
-      --card: #fffffffa;
-      --border: #e6ecff;
-    }
+    :root{ --blue:#ace4ff; --blueLight:#daedff; --pink:#ffc5e1; --pinkLight:#ffe1e7; --text:#23324a; --muted:#5b6b86; --card:#fffffffa; --border:#e6ecff; }
     *{box-sizing:border-box} html,body{height:100%}
-    body{
-      margin:0;
-      color:var(--text);
+    body{ margin:0; color:var(--text);
       background: radial-gradient(1200px 800px at 0% 0%, var(--blueLight), transparent),
                   radial-gradient(1000px 700px at 100% 0%, var(--pinkLight), transparent),
                   radial-gradient(1000px 900px at 50% 100%, #ffffff, transparent);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
-      display:flex; align-items:center; justify-content:center; padding:24px;
-    }
-    .card{ width:100%; max-width:520px; background:var(--card); border:1px solid var(--border);
-            border-radius:20px; padding:22px; box-shadow:0 10px 30px rgba(172,228,255,.35); }
-    h1{ margin:0 0 8px; font-size:24px; }
-    p{ margin:8px 0; color:var(--muted); }
-    label{ display:block; margin-top:12px; font-size:13px; color:#5c6b86; }
-    input{ width:100%; margin-top:6px; padding:12px 14px; border-radius:14px; border:1px solid var(--border);
-            background:#fff; color:var(--text); }
-    .row{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
-    button{ flex:1; padding:12px; border:none; border-radius:14px; cursor:pointer; font-weight:700; }
-    .primary{ background:var(--pink); }
-    .ok{ background:var(--blue); }
-    .danger{ background:#ff8aa8; color:#fff; }
-    .status{ margin-top:14px; padding:10px 12px; border-radius:12px; background:var(--blueLight); color:var(--text); }
-    .footer{ margin-top:12px; font-size:12px; color:var(--muted); }
+      display:flex; align-items:center; justify-content:center; padding:24px; }
+    .card{ width:100%; max-width:520px; background:var(--card); border:1px solid var(--border); border-radius:20px; padding:22px; box-shadow:0 10px 30px rgba(172,228,255,.35) }
+    h1{ margin:0 0 8px; font-size:24px } p{ margin:8px 0; color:var(--muted) }
+    label{ display:block; margin-top:12px; font-size:13px; color:#5c6b86 }
+    input{ width:100%; margin-top:6px; padding:12px 14px; border-radius:14px; border:1px solid var(--border); background:#fff; color:var(--text) }
+    .row{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap }
+    button{ flex:1; padding:12px; border:none; border-radius:14px; cursor:pointer; font-weight:700 }
+    .primary{ background:var(--pink) } .ok{ background:var(--blue) } .danger{ background:#ff8aa8; color:#fff }
+    .status{ margin-top:14px; padding:10px 12px; border-radius:12px; background:var(--blueLight); color:var(--text) }
+    .footer{ margin-top:12px; font-size:12px; color:var(--muted) }
   </style>
 </head>
 <body>
@@ -59,7 +42,7 @@
     </div>
 
     <div class="status" id="status">状態：未ログイン</div>
-    <div class="footer">Palette: #ace4ff • #daedff • #ffc5e1 • #ffe1e7</div>
+    <div class="footer">Images + Time build</div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -83,7 +66,6 @@
     const statusEl = $("status");
     const showStatus = (t)=> statusEl.textContent = "状態：" + t;
 
-    // 既ログインなら welcome へ
     auth.onAuthStateChanged(function(user){
       if(user){ window.location.replace("welcome.html"); }
       else{ showStatus("未ログイン"); }
